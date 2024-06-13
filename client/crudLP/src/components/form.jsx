@@ -39,7 +39,7 @@ function Form() {
   // Registra clientes
   const add = (event) => {
     event.preventDefault();
-    Axios.post("http://localhost:3002/create", {
+    Axios.post("http://localhost:3006/create", {
       nombre: nombre,
       vehiculo: vehiculo,
       precio: parseInt(precio),

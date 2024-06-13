@@ -95,5 +95,5 @@ app.get("/cliente", (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log("Corriendo en el puerto 3002");
+    console.log("Corriendo en el puerto 3006");
 });

@@ -3,7 +3,7 @@ import Axios from 'axios';
 import Swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
 
-const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3002";
+const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3006";
 
 const alertEliminar = (callback) => {
   Swal.fire({
