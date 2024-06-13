@@ -1,0 +1,144 @@
+import React, { useState, useEffect } from 'react';
+import Axios from 'axios';
+
+function Form() {
+  const [nombre, setNombre] = useState("");
+  const [vehiculo, setVehiculo] = useState("");
+  const [precio, setPrecio] = useState();
+  const [costo, setCosto] = useState();
+  const [beneficio, setBeneficio] = useState();
+  const [total, setTotal] = useState();
+
+
+  useEffect(() => {
+    const costoCalculado = Math.round(precio * 0.55);
+    const beneficioCalculado = Math.round(precio * 0.45);
+    setCosto(costoCalculado);
+    setBeneficio(beneficioCalculado);
+    setTotal(costoCalculado + beneficioCalculado);
+  }, [precio]);
+
+  useEffect(() => {
+    const nuevoBeneficio = total - costo;
+    setBeneficio(nuevoBeneficio);
+  }, [total]);
+
+  const add = (event) => {
+    event.preventDefault();
+    Axios.post("http://localhost:3002/create", {
+      nombre: nombre,
+      vehiculo: vehiculo,
+      precio: parseInt(precio),
+      costo: parseInt(costo),
+      beneficio: parseInt(beneficio),
+    }).then(() => {
+      alert("Cliente registrado");
+      // Restablece los campos
+      setNombre("");
+      setVehiculo("");
+      setPrecio(0);
+      setCosto(0);
+      setBeneficio(0);
+      setTotal(0);
+    });
+  };
+
+
+
+  return (
+    <div className='flex justify-center items-center min-h-screen font-lora bg-gray-800'>
+      <form className='mt-8 mb-2 w-80 max-w-screen-lg sm:w-96' onSubmit={add}>
+        <ul className='space-y-6'>
+          <li>
+            <label className='block text-gray-300'>
+              Nombre
+              <input
+              required
+                onChange={(event) => setNombre(event.target.value)}
+                value={nombre}
+                type='text'
+                name='nombre'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+          <li>
+            <label className='block text-gray-300'>
+              Vehículo
+              <input
+              required
+                onChange={(event) => setVehiculo(event.target.value)}
+                value={vehiculo}
+                type='text'
+                name='vehiculo'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+          <li>
+            <label className='block text-gray-300'>
+          
+              Precio
+              <input
+              required
+                onChange={(event) => setPrecio(parseInt(event.target.value))}
+                value={precio}
+                type='number'
+                name='precio'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+          <li>
+            <label className='block text-gray-300'>
+              Costo
+              <input
+                value={costo}
+                readOnly
+                type='number'
+                name='costo'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+          <li>
+            <label className='block text-gray-300'>
+              Beneficio
+              <input
+                value={beneficio}
+                readOnly
+                type='number'
+                name='beneficio'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+          <li>
+            <label className='block text-gray-300'>
+              Total
+              <input
+                onChange={(event) => setTotal(parseInt(event.target.value))}
+                value={total}
+                type='number'
+                name='total'
+                className='mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white'
+              />
+            </label>
+          </li>
+        </ul>
+        <button
+          type='submit'
+          className='w-full bg-blue-600 hover:bg-jonquil text-white font-lora py-2 px-4 rounded mt-6'>
+          Registrar
+        </button>
+      </form>
+
+       
+        
+
+
+    </div>
+  );
+}
+
+export default Form;
