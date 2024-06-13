@@ -1,6 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import Axios from 'axios';
-const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3002"
+import Swal from 'sweetalert2';
+import 'sweetalert2/src/sweetalert2.scss';
+
+const URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3002";
+
+const alertEliminar = (callback) => {
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Este cambio no se puede revertir",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Eliminar",
+    cancelButtonText: "Cancelar",
+    reverseButtons: true,
+    background: '#1f2937',
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    color: '#fff',
+    customClass: {
+      popup: 'bg-gray-800 text-white',
+      confirmButton: 'bg-blue-500 hover:bg-blue-700',
+      cancelButton: 'bg-red-500 hover:bg-red-700',
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      callback(); // Ejecuta la función de eliminación si se confirma
+      Swal.fire({
+        title: "Eliminado",
+        text: "El registro fue eliminado",
+        icon: "success",
+        background: '#1f2937',
+        color: '#fff',
+        confirmButtonColor: '#3085d6',
+      });
+    } else if (result.dismiss === Swal.DismissReason.cancel) {
+      Swal.fire({
+        title: "Cancelado",
+        text: "Te cagaste?",
+        icon: "error",
+        background: '#1f2937',
+        color: '#fff',
+        confirmButtonColor: '#3085d6',
+      });
+    }
+  });
+};
+
+const alertGuardar = () => {
+  Swal.fire({
+    title: "Guardado",
+    text: "Los cambios fueron guardados exitosamente",
+    icon: "success",
+    background: '#1f2937',
+    color: '#fff',
+    confirmButtonColor: '#3085d6',
+  });
+};
+
+const alertCancelar = () => {
+  Swal.fire({
+    title: "Cancelado",
+    text: "La edición fue cancelada",
+    icon: "info",
+    background: '#1f2937',
+    color: '#fff',
+    confirmButtonColor: '#3085d6',
+  });
+};
+
 function VerCliente() {
   const [clienteList, setClienteList] = useState([]);
   const [editar, setEditar] = useState(false);
@@ -10,18 +78,17 @@ function VerCliente() {
   const [precio, setPrecio] = useState(0);
   const [beneficio, setBeneficio] = useState(0);
   const [total, setTotal] = useState(0);
-  const [costo, setCosto] = useState();
+  const [costo, setCosto] = useState(0);
 
   const eliminarCliente = (id) => {
-    Axios.delete(`http://localhost:3002/delete/${id}`)
-      .then(() => {
-        fetchData(); // Actualiza la lista después de eliminar
-      })
-      .catch((error) => {
-        console.error('Error deleting data:', error);
+    const deleteClient = () => {
+      Axios.delete(`${URL}/delete/${id}`).then(() => {
+        fetchData();
       });
+    };
+    alertEliminar(deleteClient);
   };
-  
+
   useEffect(() => {
     const costoCalculado = Math.round(precio * 0.55);
     const beneficioCalculado = Math.round(precio * 0.45);
@@ -35,13 +102,12 @@ function VerCliente() {
     setBeneficio(nuevoBeneficio);
   }, [total]);
 
-  
   useEffect(() => {
     fetchData();
   }, []);
 
   const fetchData = () => {
-    Axios.get("http://localhost:3002/cliente")
+    Axios.get(`${URL}/cliente`)
       .then((response) => {
         setClienteList(response.data);
       })
@@ -67,11 +133,12 @@ function VerCliente() {
   };
 
   const cancelarEdicion = () => {
+    alertCancelar();
     setEditar(false);
   };
 
   const update = () => {
-    Axios.put(`http://localhost:3002/update/${id}`, {
+    Axios.put(`${URL}/update/${id}`, {
       id: id,
       nombre: nombre,
       vehiculo: vehiculo,
@@ -80,6 +147,7 @@ function VerCliente() {
       total: parseInt(total),
     })
       .then(() => {
+        alertGuardar();
         setEditar(false); // Cambia el estado de edición a falso
         fetchData(); // Vuelve a cargar los datos actualizados
       })
@@ -137,8 +205,8 @@ function VerCliente() {
                   <input
                     type="number"
                     className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white"
-                    value={beneficio}
-                    onChange={(e) => setBeneficio(parseInt(e.target.value))}
+                    value={parseInt(beneficio)}
+                    readOnly
                   />
                 </label>
                 <label className="block">
@@ -146,24 +214,24 @@ function VerCliente() {
                   <input
                     type="number"
                     className="mt-1 block w-full rounded-md bg-gray-700 border-transparent focus:border-gray-500 focus:bg-gray-600 focus:ring-0 text-white"
-                    value={(costo + beneficio).toFixed()}
-                    
+                    value={parseInt(total)}
+                    onChange={(e) => setTotal(parseInt(e.target.value))}
                   />
                 </label>
-                <div className="flex justify-end">
+                <div className="flex justify-end space-x-4">
                   <button
                     type="button"
-                    className="bg-gray-600 hover:bg-gray-400 text-white font-lora py-2 px-4 rounded mr-2"
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                     onClick={cancelarEdicion}
                   >
                     Cancelar
                   </button>
                   <button
                     type="button"
-                    className="bg-blue-600 hover:bg-blue-400 text-white font-lora py-2 px-4 rounded"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                     onClick={update}
                   >
-                    Actualizar
+                    Guardar
                   </button>
                 </div>
               </div>
